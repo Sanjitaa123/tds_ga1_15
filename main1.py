@@ -112,7 +112,7 @@ def health():
 
 
 @app.post("/")
-```python
+
 def answer_question(payload: Question):
     question = payload.question.lower()
 
@@ -304,4 +304,3 @@ def answer_question(payload: Question):
     return {
         "answer": "Unable to determine the answer"
     }
-```
