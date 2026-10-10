@@ -112,6 +112,7 @@ def health():
 
 
 @app.post("/")
+```python
 def answer_question(payload: Question):
     question = payload.question.lower()
 
@@ -161,7 +162,7 @@ def answer_question(payload: Question):
         ]
 
     # Filter by region.
-    for region in ["north", "south", "east", "west","central"]:
+    for region in ["north", "south", "east", "west", "central"]:
         if region in question:
             filtered = [
                 order for order in filtered
@@ -194,15 +195,25 @@ def answer_question(payload: Question):
             if order.get("product") == product
         ]
 
-    # Count distinct customers when requested.
+    # Count distinct customers.
+    # If paid orders are explicitly requested, filter by paid status.
     if "customer" in question and (
         "how many" in question or "count" in question
     ):
+        customer_orders = filtered
+
+        if "paid" in question:
+            customer_orders = [
+                order for order in filtered
+                if str(order.get("status", "")).lower() == "paid"
+            ]
+
         customers = {
             order["customer"]
-            for order in filtered
+            for order in customer_orders
             if order.get("customer") is not None
         }
+
         return {"answer": len(customers)}
 
     # Handle refund questions.
@@ -212,8 +223,7 @@ def answer_question(payload: Question):
             if str(order.get("status", "")).lower() == "refunded"
         ]
 
-        # If the question asks for a count, return the number
-        # of refunded orders instead of their monetary value.
+        # Return the number of refunded orders for count questions.
         if "count" in question or "how many" in question:
             return {"answer": len(refunded)}
 
@@ -230,7 +240,7 @@ def answer_question(payload: Question):
 
         return {"answer": float(result)}
 
-    # Revenue and sales include only currently paid orders.
+    # Revenue and earnings include only currently paid orders.
     if any(
         word in question
         for word in ["revenue", "sales", "income", "earn", "earned"]
@@ -258,7 +268,10 @@ def answer_question(payload: Question):
 
     # Find the product with the highest revenue or most orders.
     if "product" in question:
-        if "revenue" in question or "sales" in question:
+        if any(
+            word in question
+            for word in ["revenue", "sales", "income", "earn", "earned"]
+        ):
             totals = {}
 
             for order in filtered:
@@ -291,3 +304,4 @@ def answer_question(payload: Question):
     return {
         "answer": "Unable to determine the answer"
     }
+```
