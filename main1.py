@@ -233,7 +233,7 @@ def answer_question(payload: Question):
     # Revenue and sales include only currently paid orders.
     if any(
         word in question
-        for word in ["revenue", "sales", "income"]
+        for word in ["revenue", "sales", "income", "earn", "earned"]
     ):
         paid = [
             order for order in filtered
